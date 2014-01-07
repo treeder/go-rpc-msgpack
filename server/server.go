@@ -1,15 +1,14 @@
-package server
+package main
 
 import (
 	"net/rpc"
-
-	"errors"
 	"fmt"
 	"log"
 	"net"
 	"strconv"
 
 	"github.com/ugorji/go/codec"
+	"github.com/iron-io/rpctest/common"
 
 	"reflect"
 )
@@ -24,7 +23,7 @@ func main() {
 	}
 	// todo: Add listener.Close() thing like beanstalkq.go?
 
-	arith := new(Arith)
+	arith := new(common.Arith)
 
 	//	listenGob(&listener, &arith)
 
@@ -32,14 +31,14 @@ func main() {
 
 }
 
-func listenGob(listener net.Listener, reg *Arith) {
+func listenGob(listener net.Listener, reg *common.Arith) {
 	//RPC Server
 	rpcServer := rpc.NewServer()
 	rpcServer.Register(reg)
 	rpcServer.Accept(listener)
 }
 
-func listenMsgpack(listener net.Listener, reg *Arith) {
+func listenMsgpack(listener net.Listener, reg *common.Arith) {
 	// create and configure Handle
 	var (
 		mh codec.MsgpackHandle
@@ -58,28 +57,4 @@ func listenMsgpack(listener net.Listener, reg *Arith) {
 		rpcServer.ServeCodec(rpcCodec)
 
 	}
-}
-
-type Args struct {
-	A, B int
-}
-
-type Quotient struct {
-	Quo, Rem int
-}
-
-type Arith int
-
-func (t *Arith) Multiply(args *Args, reply *int) error {
-	*reply = args.A * args.B
-	return nil
-}
-
-func (t *Arith) Divide(args *Args, quo *Quotient) error {
-	if args.B == 0 {
-		return errors.New("divide by zero")
-	}
-	quo.Quo = args.A / args.B
-	quo.Rem = args.A % args.B
-	return nil
 }

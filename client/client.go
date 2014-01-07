@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/iron-io/rpctest/server"
+	"github.com/iron-io/rpctest/common"
 	"fmt"
 	"net/rpc"
 	"log"
@@ -16,7 +16,7 @@ func main() {
 //	client := gobClient()
 	client := msgpackClient()
 	// Synchronous call
-	args := &server.Args{7, 10}
+	args := &common.Args{7, 10}
 	var reply int
 	err := client.Call("Arith.Multiply", args, &reply)
 	if err != nil {
@@ -24,7 +24,7 @@ func main() {
 	}
 	fmt.Printf("Arith: %d*%d=%d\n", args.A, args.B, reply)
 
-	quotient := new(server.Quotient)
+	quotient := new(common.Quotient)
 	divCall := client.Go("Arith.Divide", args, quotient, nil)
 	replyCall := <-divCall.Done	// will be equal to divCall
 	// check errors, print, etc.
